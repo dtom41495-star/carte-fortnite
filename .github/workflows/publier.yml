@@ -5,6 +5,11 @@ name: Publier une version
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Numero de version a publier (ex. : 1.0.0), sans le v"
+        required: true
 
 permissions:
   contents: write
@@ -22,7 +27,9 @@ jobs:
       - name: Compiler l'exe unique
         shell: bash
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then TAG="v${{ inputs.version }}"; else TAG="$GITHUB_REF_NAME"; fi
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          VERSION="${TAG#v}"
           dotnet publish app/CarteFortnite.csproj -c Release -p:Version="$VERSION" -o publication
 
       - name: Calculer l'empreinte SHA-256
@@ -37,5 +44,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" publication/CarteFortnite.exe publication/CarteFortnite.exe.sha256 \
-            --title "Carte Fortnite $GITHUB_REF_NAME" --generate-notes
+          gh release create "$TAG" publication/CarteFortnite.exe publication/CarteFortnite.exe.sha256 \
+            --target "$GITHUB_SHA" --title "Carte Fortnite $TAG" --generate-notes

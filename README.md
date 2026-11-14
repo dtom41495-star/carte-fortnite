@@ -57,4 +57,4 @@ Le replay est enregistré de **ton** point de vue : les adversaires ne sont suiv
 - `app/` : l'application (WPF, .NET 10). `app/Lecteur.cs` lit les replays avec [FortniteReplayReader](https://github.com/xNocken/replay-reader).
 - `carte.html`, `ressources/` : la page de la carte, embarquée dans l'exe.
 - Compiler : `dotnet publish app/CarteFortnite.csproj -c Release` (Windows).
-- **Publier une version** : `git tag v1.1.0 && git push origin v1.1.0`. Le workflow `publier.yml` compile l'exe et crée la Release avec `CarteFortnite.exe` et `CarteFortnite.exe.sha256` ; les programmes déjà installés proposent alors la mise à jour au prochain lancement.
+- **Publier une version** : onglet *Actions* > *Publier une version* > *Run workflow* (numéro, ex. `1.1.0`), ou `git tag v1.1.0 && git push origin v1.1.0`. Le workflow `publier.yml` compile l'exe et crée la Release avec `CarteFortnite.exe` et `CarteFortnite.exe.sha256` ; les programmes déjà installés proposent alors la mise à jour au prochain lancement.
