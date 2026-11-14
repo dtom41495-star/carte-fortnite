@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <NoWarn>$(NoWarn);CS8632;CS0436</NoWarn>
+    <AssemblyName>CarteFortnite</AssemblyName>
+    <RootNamespace>CarteFortnite</RootNamespace>
+    <Version>0.0.0</Version>
+    <ApplicationIcon>..\ressources\coffre.ico</ApplicationIcon>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <Product>Carte Fortnite</Product>
+    <Description>Carte des coffres ouverts, lue dans les replays Fortnite (outil de fan, non affilie a Epic Games)</Description>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <!-- Un seul .exe autonome (le SDK .NET n'est pas necessaire sur le PC qui le lance). -->
+  <PropertyGroup>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>none</DebugType>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FortniteReplayReader" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4314.35" />
+  </ItemGroup>
+
+  <!-- La page de la carte et ses images sont dans l'exe ; elles sont recopiees dans %LOCALAPPDATA%\CarteFortnite au demarrage. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\carte.html" LogicalName="site/carte.html" />
+    <EmbeddedResource Include="..\ressources\map.png" LogicalName="site/ressources/map.png" />
+    <EmbeddedResource Include="..\ressources\terre.js" LogicalName="site/ressources/terre.js" />
+    <EmbeddedResource Include="..\ressources\pois.js" LogicalName="site/ressources/pois.js" />
+    <EmbeddedResource Include="..\ressources\coffre.ico" LogicalName="site/ressources/coffre.ico" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,17 @@
+# Verifie que le projet compile a chaque envoi de code.
+name: Verifier la compilation
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  compiler:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet build app/CarteFortnite.csproj -c Release

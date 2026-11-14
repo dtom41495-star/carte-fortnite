@@ -1,0 +1,70 @@
+<Window x:Class="CarteFortnite.OverlayWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" Topmost="True"
+        ShowInTaskbar="False" ShowActivated="False" SizeToContent="WidthAndHeight"
+        ResizeMode="NoResize" WindowStartupLocation="Manual" UseLayoutRounding="True">
+  <Border Name="Cadre" Background="Transparent" Padding="14,8,22,14">
+    <Grid>
+      <Border Margin="5,6,-5,-6" Background="#B3040928" RenderTransformOrigin="0.5,0.5">
+        <Border.RenderTransform><SkewTransform AngleX="-10"/></Border.RenderTransform>
+      </Border>
+      <Border Name="Plaque" BorderBrush="#FFFFE500" BorderThickness="3" RenderTransformOrigin="0.5,0.5">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#F51F36B4" Offset="0"/>
+            <GradientStop Color="#F52A1068" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+        <Border.RenderTransform><SkewTransform AngleX="-10"/></Border.RenderTransform>
+        <Border Height="20" VerticalAlignment="Top" Background="#1EFFFFFF"/>
+      </Border>
+      <StackPanel Margin="26,8,30,10">
+        <StackPanel Orientation="Horizontal">
+          <Viewbox Name="Icone" Width="58" Height="52" VerticalAlignment="Center">
+            <Canvas Width="46" Height="40">
+              <Path Data="M3,17 L3,11 Q3,2 12,2 L34,2 Q43,2 43,11 L43,17 Z" Stroke="#FF3D2400" StrokeThickness="2" StrokeLineJoin="Round">
+                <Path.Fill>
+                  <LinearGradientBrush StartPoint="0,0" EndPoint="0,1"><GradientStop Color="#FFFFC531" Offset="0"/><GradientStop Color="#FFF2A71F" Offset="1"/></LinearGradientBrush>
+                </Path.Fill>
+              </Path>
+              <Rectangle Canvas.Left="3" Canvas.Top="16" Width="40" Height="21" Stroke="#FF3D2400" StrokeThickness="2" RadiusX="3" RadiusY="3">
+                <Rectangle.Fill>
+                  <LinearGradientBrush StartPoint="0,0" EndPoint="0,1"><GradientStop Color="#FFFFE24A" Offset="0"/><GradientStop Color="#FFFFB800" Offset="1"/></LinearGradientBrush>
+                </Rectangle.Fill>
+              </Rectangle>
+              <Rectangle Canvas.Left="3" Canvas.Top="15" Width="40" Height="4" Fill="#FF7A5200"/>
+              <Rectangle Canvas.Left="10" Canvas.Top="3" Width="4" Height="33" Fill="#FF7A5200"/>
+              <Rectangle Canvas.Left="32" Canvas.Top="3" Width="4" Height="33" Fill="#FF7A5200"/>
+              <Path Data="M6,9 Q7,5 13,4.5 L19,4.5" Stroke="#B3FFFFFF" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+              <Rectangle Canvas.Left="18.5" Canvas.Top="12" Width="9" Height="12" Fill="#FF2A1900" Stroke="#FFFFF08A" StrokeThickness="1.2" RadiusX="2" RadiusY="2"/>
+              <Ellipse Canvas.Left="21.2" Canvas.Top="15.4" Width="3.6" Height="3.6" Fill="#FFFFF08A"/>
+            </Canvas>
+          </Viewbox>
+          <TextBlock Name="Nombre" Text="0" FontFamily="Bahnschrift, Segoe UI" FontStretch="Condensed" FontWeight="Bold" FontStyle="Italic" FontSize="54" Foreground="#FFFFE500"
+                     Margin="14,0,0,0" VerticalAlignment="Center" MinWidth="34" TextAlignment="Left">
+            <TextBlock.Effect><DropShadowEffect Color="#FF000000" Opacity="0.6" ShadowDepth="3" BlurRadius="0" Direction="300"/></TextBlock.Effect>
+          </TextBlock>
+          <TextBlock Name="Badge" Text="" Visibility="Collapsed" FontFamily="Bahnschrift, Segoe UI" FontStretch="Condensed" FontWeight="Bold" FontStyle="Italic" FontSize="32" Foreground="#FF5CF08A"
+                     Margin="12,8,0,0" VerticalAlignment="Center">
+            <TextBlock.Effect><DropShadowEffect Color="#FF000000" Opacity="0.6" ShadowDepth="2" BlurRadius="0" Direction="300"/></TextBlock.Effect>
+          </TextBlock>
+        </StackPanel>
+        <StackPanel Name="EquipeLigne" Orientation="Horizontal" Visibility="Collapsed" Margin="6,2,0,0">
+          <TextBlock Text="ÉQUIPE" FontFamily="Bahnschrift, Segoe UI" FontStretch="Condensed" FontWeight="SemiBold" FontStyle="Italic" FontSize="22" Foreground="#FFA9B9FF" VerticalAlignment="Center"/>
+          <TextBlock Name="EquipeNombre" Text="0" FontFamily="Bahnschrift, Segoe UI" FontStretch="Condensed" FontWeight="Bold" FontStyle="Italic" FontSize="36" Foreground="#FF2AD4FF" Margin="12,0,0,0" VerticalAlignment="Center">
+            <TextBlock.Effect><DropShadowEffect Color="#FF000000" Opacity="0.6" ShadowDepth="2" BlurRadius="0" Direction="300"/></TextBlock.Effect>
+          </TextBlock>
+          <TextBlock Name="EquipeBadge" Text="" Visibility="Collapsed" FontFamily="Bahnschrift, Segoe UI" FontStretch="Condensed" FontWeight="Bold" FontStyle="Italic" FontSize="24" Foreground="#FF5CF08A" Margin="10,6,0,0" VerticalAlignment="Center"/>
+        </StackPanel>
+        <StackPanel Name="ResumeLigne" Orientation="Horizontal" Visibility="Collapsed" Margin="6,4,0,0">
+          <TextBlock Name="ResPlace" Text="" FontFamily="Bahnschrift, Segoe UI" FontStretch="Condensed" FontWeight="Bold" FontStyle="Italic" FontSize="32" Foreground="#FFFFE500" VerticalAlignment="Center">
+            <TextBlock.Effect><DropShadowEffect Color="#FF000000" Opacity="0.6" ShadowDepth="2" BlurRadius="0" Direction="300"/></TextBlock.Effect>
+          </TextBlock>
+          <TextBlock Name="ResKills" Text="" FontFamily="Bahnschrift, Segoe UI" FontStretch="Condensed" FontWeight="Bold" FontStyle="Italic" FontSize="26" Foreground="#FFFFFFFF" Margin="16,0,0,0" VerticalAlignment="Center"/>
+          <TextBlock Name="ResTueur" Text="" FontFamily="Bahnschrift, Segoe UI" FontStretch="Condensed" FontWeight="SemiBold" FontStyle="Italic" FontSize="22" Foreground="#FFA9B9FF" Margin="16,0,0,0" VerticalAlignment="Center"/>
+        </StackPanel>
+        <TextBlock Name="Aide" Visibility="Collapsed" Foreground="#FFC9D5FF" FontSize="12" Margin="0,6,0,0"
+                   Text="Glisse pour deplacer - clic droit pour valider"/>
+      </StackPanel>
+    </Grid>
+  </Border>
+</Window>

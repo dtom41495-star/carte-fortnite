@@ -1,0 +1,41 @@
+# Publie CarteFortnite.exe dans les "Releases" quand on pousse un tag de version (ex. : v1.0.0, v1.1.0).
+# L'exe est compile par GitHub (pas sur un PC personnel) et publie avec son empreinte SHA-256 : c'est ce que l'appli verifie avant de se mettre a jour.
+name: Publier une version
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  publier:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Compiler l'exe unique
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          dotnet publish app/CarteFortnite.csproj -c Release -p:Version="$VERSION" -o publication
+
+      - name: Calculer l'empreinte SHA-256
+        shell: pwsh
+        run: |
+          $h = (Get-FileHash publication/CarteFortnite.exe -Algorithm SHA256).Hash.ToLower()
+          "$h  CarteFortnite.exe" | Out-File -Encoding ascii publication/CarteFortnite.exe.sha256
+          Write-Host "SHA-256 : $h"
+
+      - name: Creer la Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" publication/CarteFortnite.exe publication/CarteFortnite.exe.sha256 \
+            --title "Carte Fortnite $GITHUB_REF_NAME" --generate-notes

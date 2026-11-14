@@ -1,0 +1,175 @@
+<Window x:Class="CarteFortnite.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Carte Fortnite" Width="500" SizeToContent="Height" WindowStartupLocation="CenterScreen"
+        ResizeMode="CanMinimize" Background="#FF070D2B" FontFamily="Segoe UI" FontSize="14" UseLayoutRounding="True">
+  <Grid>
+    <Grid.Background>
+      <LinearGradientBrush StartPoint="0,0" EndPoint="0.35,1">
+        <GradientStop Color="#FF0E1A5E" Offset="0"/>
+        <GradientStop Color="#FF0A1248" Offset="0.55"/>
+        <GradientStop Color="#FF1A0E56" Offset="1"/>
+      </LinearGradientBrush>
+    </Grid.Background>
+    <Grid Name="VuePanneau">
+    <Canvas IsHitTestVisible="False" ClipToBounds="True">
+      <Polygon Points="300,0 430,0 250,1500 120,1500" Fill="#0BFFFFFF"/>
+      <Polygon Points="450,0 520,0 340,1500 270,1500" Fill="#08FFFFFF"/>
+    </Canvas>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+      <StackPanel Margin="26,20,26,18">
+
+        <Grid Margin="0,0,0,16">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+          <Viewbox Width="66" Height="58" VerticalAlignment="Top" Margin="0,2,14,0">
+            <Canvas Width="46" Height="40">
+              <Path Data="M3,17 L3,11 Q3,2 12,2 L34,2 Q43,2 43,11 L43,17 Z" Stroke="#FF3D2400" StrokeThickness="2" StrokeLineJoin="Round">
+                <Path.Fill>
+                  <LinearGradientBrush StartPoint="0,0" EndPoint="0,1"><GradientStop Color="#FFFFC531" Offset="0"/><GradientStop Color="#FFF2A71F" Offset="1"/></LinearGradientBrush>
+                </Path.Fill>
+              </Path>
+              <Rectangle Canvas.Left="3" Canvas.Top="16" Width="40" Height="21" Stroke="#FF3D2400" StrokeThickness="2" RadiusX="3" RadiusY="3">
+                <Rectangle.Fill>
+                  <LinearGradientBrush StartPoint="0,0" EndPoint="0,1"><GradientStop Color="#FFFFE24A" Offset="0"/><GradientStop Color="#FFFFB800" Offset="1"/></LinearGradientBrush>
+                </Rectangle.Fill>
+              </Rectangle>
+              <Rectangle Canvas.Left="3" Canvas.Top="15" Width="40" Height="4" Fill="#FF7A5200"/>
+              <Rectangle Canvas.Left="10" Canvas.Top="3" Width="4" Height="33" Fill="#FF7A5200"/>
+              <Rectangle Canvas.Left="32" Canvas.Top="3" Width="4" Height="33" Fill="#FF7A5200"/>
+              <Path Data="M6,9 Q7,5 13,4.5 L19,4.5" Stroke="#B3FFFFFF" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+              <Rectangle Canvas.Left="18.5" Canvas.Top="12" Width="9" Height="12" Fill="#FF2A1900" Stroke="#FFFFF08A" StrokeThickness="1.2" RadiusX="2" RadiusY="2"/>
+              <Ellipse Canvas.Left="21.2" Canvas.Top="15.4" Width="3.6" Height="3.6" Fill="#FFFFF08A"/>
+            </Canvas>
+          </Viewbox>
+          <StackPanel Grid.Column="1">
+            <TextBlock Text="CARTE FORTNITE" Style="{StaticResource Titre}" FontSize="42">
+              <TextBlock.Effect><DropShadowEffect Color="#FF000000" Opacity="0.55" ShadowDepth="3" BlurRadius="0" Direction="300"/></TextBlock.Effect>
+            </TextBlock>
+            <Rectangle Width="120" Height="6" HorizontalAlignment="Left" Fill="#FFFFE500" Margin="4,2,0,8" RenderTransformOrigin="0.5,0.5">
+              <Rectangle.RenderTransform><SkewTransform AngleX="-10"/></Rectangle.RenderTransform>
+            </Rectangle>
+            <TextBlock Text="Tes parties, lues dans tes replays." Foreground="#FFA9B9FF" TextWrapping="Wrap"/>
+          </StackPanel>
+        </Grid>
+
+        <Border Name="Alerte" Visibility="Collapsed" Background="#FF4A1230" BorderBrush="#FFFF4D6D" BorderThickness="5,0,0,0" Padding="14,10" Margin="0,0,0,14">
+          <StackPanel>
+            <TextBlock Text="FORTNITE EST OUVERT" Style="{StaticResource Titre}" FontSize="17" Foreground="#FFFF8FA3"/>
+            <TextBlock Foreground="#FFFFE0E6" FontSize="12.5" TextWrapping="Wrap" Margin="0,3,0,0"
+                       Text="Ouvrir cette application pendant le jeu a fait planter Easy Anti-Cheat : ferme le jeu, ferme et rouvre Carte Fortnite, puis relance Fortnite."/>
+          </StackPanel>
+        </Border>
+
+        <Grid>
+          <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+          <Grid Grid.Column="0" Margin="0,0,7,0">
+            <Border Style="{StaticResource Plaque}" BorderBrush="#FFFFE500"/>
+            <StackPanel Margin="18,8,6,10">
+              <TextBlock Name="Total" Text="…" Style="{StaticResource Titre}" FontSize="44" Foreground="#FFFFE500"/>
+              <TextBlock Text="COFFRES AU TOTAL" Style="{StaticResource Etiquette}"/>
+              <TextBlock Name="EquipeTotal" Text="ÉQUIPE  0" Style="{StaticResource Titre}" FontSize="17" Foreground="#FF2AD4FF" Margin="0,5,0,0" ToolTip="Coffres de ton équipe (toi + tes équipiers) dans toutes les parties lues. Les tiens sont exacts, ceux de tes équipiers sont une estimation."/>
+            </StackPanel>
+          </Grid>
+          <Grid Grid.Column="1" Margin="7,0,7,0">
+            <Border Style="{StaticResource Plaque}" BorderBrush="#FF5CF08A"/>
+            <StackPanel Margin="18,8,6,10">
+              <TextBlock Name="Derniere" Text="…" Style="{StaticResource Titre}" FontSize="44" Foreground="#FF5CF08A"/>
+              <TextBlock Text="DERNIÈRE PARTIE" Style="{StaticResource Etiquette}"/>
+              <TextBlock Name="EquipeDerniere" Text="ÉQUIPE  0" Style="{StaticResource Titre}" FontSize="17" Foreground="#FF2AD4FF" Margin="0,5,0,0" ToolTip="Coffres de ton équipe (toi + tes équipiers) dans la dernière partie. Les tiens sont exacts, ceux de tes équipiers sont une estimation."/>
+            </StackPanel>
+          </Grid>
+          <Grid Grid.Column="2" Margin="7,0,0,0">
+            <Border Style="{StaticResource Plaque}" BorderBrush="#FF2AD4FF"/>
+            <StackPanel Margin="18,8,6,10">
+              <TextBlock Name="Parties" Text="…" Style="{StaticResource Titre}" FontSize="44" Foreground="#FFFFFFFF"/>
+              <TextBlock Text="PARTIES LUES" Style="{StaticResource Etiquette}"/>
+            </StackPanel>
+          </Grid>
+        </Grid>
+
+        <Grid Margin="2,14,2,0">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+          <TextBlock Text="Coffres déjà ouverts avant l'outil (facultatif)" Foreground="#FFA9B9FF" FontSize="12.5" VerticalAlignment="Center" TextWrapping="Wrap"/>
+          <TextBox Name="Depart" Grid.Column="1" Width="92" Text="0" TextAlignment="Center" Margin="12,0,0,0"
+                   ToolTip="Ajouté au total (panneau, compteur et carte). Laisse 0 si tu ne veux rien ajouter."/>
+        </Grid>
+
+        <Grid Name="Barre" Height="8" Margin="4,14,4,0" Visibility="Collapsed" ClipToBounds="True" RenderTransformOrigin="0.5,0.5">
+          <Grid.RenderTransform><SkewTransform AngleX="-10"/></Grid.RenderTransform>
+          <Border Background="#33FFFFFF"/>
+          <Border Name="Morceau" Width="150" HorizontalAlignment="Left" Background="#FFFFE500">
+            <Border.RenderTransform><TranslateTransform X="-150"/></Border.RenderTransform>
+          </Border>
+        </Grid>
+
+        <Button Name="BtnCarte" Style="{StaticResource Principal}" Content="OUVRIR LA CARTE DE MES PARTIES" Margin="0,14,6,12"/>
+
+        <StackPanel Orientation="Horizontal" Margin="0,18,0,10">
+          <Rectangle Width="10" Height="19" Fill="#FFFFE500" RenderTransformOrigin="0.5,0.5" Margin="0,2,10,0">
+            <Rectangle.RenderTransform><SkewTransform AngleX="-10"/></Rectangle.RenderTransform>
+          </Rectangle>
+          <TextBlock Text="COMPTEUR PAR-DESSUS LE JEU" Style="{StaticResource Titre}" FontSize="20"/>
+        </StackPanel>
+        <Border Background="#B30A1348" BorderBrush="#FFFFE500" BorderThickness="5,0,0,0" Padding="16,14,16,14">
+          <StackPanel>
+            <CheckBox Name="ChkOverlay"><TextBlock Text="Afficher le compteur de coffres" FontWeight="SemiBold" FontSize="15"/></CheckBox>
+            <Grid Margin="0,14,0,0">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+              <TextBlock Text="TAILLE" Style="{StaticResource Etiquette}" FontSize="15" VerticalAlignment="Center" Margin="0,0,14,0"/>
+              <Slider Name="Taille" Grid.Column="1" Minimum="30" Maximum="120" TickFrequency="10" IsSnapToTickEnabled="False" VerticalAlignment="Center"/>
+              <TextBlock Name="TailleTxt" Grid.Column="2" Text="50 %" Style="{StaticResource Titre}" FontSize="18" Foreground="#FFFFE500" VerticalAlignment="Center" Margin="14,0,0,0" MinWidth="52" TextAlignment="Right"/>
+            </Grid>
+            <Button Name="BtnDepl" Style="{StaticResource Secondaire}" Content="DÉPLACER LE COMPTEUR SUR L'ÉCRAN" Margin="0,14,4,0"/>
+            <CheckBox Name="ChkTombes" Margin="0,14,0,0"><TextBlock Text="Compter aussi les coffres tombés ou cassés (estimation)" TextWrapping="Wrap"/></CheckBox>
+            <CheckBox Name="ChkEquipe" Margin="0,12,0,0"><TextBlock Text="Afficher aussi les coffres de l'équipe sur le compteur" TextWrapping="Wrap"/></CheckBox>
+            <CheckBox Name="ChkResume" Margin="0,10,0,0" ToolTip="À la fin d'une partie : ton classement, ton nombre de kills et la plateforme de celui qui t'a tué (PC, Xbox, PlayStation...)."><TextBlock Text="Mini-résumé de fin de partie sur le compteur" TextWrapping="Wrap"/></CheckBox>
+            <TextBlock Foreground="#FFA9B9FF" FontSize="12" TextWrapping="Wrap" Margin="0,12,0,0"
+                       Text="À la fin d'une partie, un petit « +N » vert montre les coffres de cette partie ; il disparaît quand la suivante commence. Fonctionne en plein écran fenêtré."/>
+          </StackPanel>
+        </Border>
+
+        <Border Margin="0,16,0,0" Background="#B30A1348" BorderBrush="#FF2AD4FF" BorderThickness="5,0,0,0" Padding="14,9">
+          <Border.Style>
+            <Style TargetType="Border">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Text, ElementName=Etat}" Value="">
+                  <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </Border.Style>
+          <TextBlock Name="Etat" Text="" Foreground="#FFE8EEFF" TextWrapping="Wrap" MinHeight="18"/>
+        </Border>
+
+        <Border Margin="0,16,0,0" Background="#800A1348" BorderBrush="#FFFFB81C" BorderThickness="5,0,0,0" Padding="14,10">
+          <StackPanel>
+            <TextBlock Text="RÈGLE ANTI-TRICHE" Style="{StaticResource Titre}" FontSize="16" Foreground="#FFFFB81C"/>
+            <TextBlock Foreground="#FFB9C6F2" FontSize="11.5" TextWrapping="Wrap" Margin="0,4,0,0"
+                       Text="Ouvre cette application AVANT de lancer Fortnite et ne la relance pas pendant que le jeu tourne : Easy Anti-Cheat a fait planter le jeu dans ce cas. Le compteur est une fenêtre de ce programme, il ne touche pas au jeu et ne lit que tes fichiers de replay. La carte ne s'affiche dans ce panneau que si Fortnite est fermé (et se ferme toute seule si le jeu s'ouvre). Epic ne publie pas de liste d'outils autorisés : à utiliser en connaissance de cause. En cas de doute, n'affiche pas le compteur."/>
+          </StackPanel>
+        </Border>
+
+        <Button Name="BtnRaccourci" Style="{StaticResource Secondaire}" Content="CRÉER UN RACCOURCI SUR LE BUREAU" Margin="0,18,4,0"/>
+        <Button Name="BtnQuitter" Style="{StaticResource Secondaire}" Content="RÉDUIRE CE PANNEAU (LE COMPTEUR RESTE AFFICHÉ)" Margin="0,10,4,0"/>
+        <TextBlock Text="La croix en haut à droite ferme le panneau ET le compteur." Foreground="#FF8E9FE0" FontSize="11" Margin="2,10,2,0"/>
+        <TextBlock Text="Outil de fan, non affilié à Epic Games. « Fortnite » est une marque d'Epic Games." Foreground="#FF6C7DBF" FontSize="10.5" TextWrapping="Wrap" Margin="2,10,2,0"/>
+      </StackPanel>
+    </ScrollViewer>
+    </Grid>
+
+    <!-- la carte, DANS la fenêtre : une barre avec le bouton « Retour », puis la zone où s'affiche la page (le moteur web est créé dans le code) -->
+    <DockPanel Name="VueCarte" Visibility="Collapsed" LastChildFill="True">
+      <Border DockPanel.Dock="Top" Padding="14,8,14,8" BorderBrush="#FFFFE500" BorderThickness="0,0,0,3">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#FF0E1A5E" Offset="0"/>
+            <GradientStop Color="#FF1A0E56" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+        <Grid>
+          <Button Name="BtnRetour" Style="{StaticResource Secondaire}" Content="← RETOUR" HorizontalAlignment="Left" Width="132" Margin="0,0,0,2" ToolTip="Revenir au panneau"/>
+          <TextBlock Text="CARTE FORTNITE" Style="{StaticResource Titre}" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+      </Border>
+      <Grid Name="ZoneCarte" Background="#FF070D2B"/>
+    </DockPanel>
+  </Grid>
+</Window>

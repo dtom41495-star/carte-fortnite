@@ -1,4 +1,5 @@
-donnees/
 bin/
 obj/
+publication/
 *.replay
+*.user
