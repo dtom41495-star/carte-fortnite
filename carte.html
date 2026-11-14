@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Carte de mes parties</title>
+<style>
+  /* Style inspiré de l'univers Fortnite (couleurs vives, formes penchées, titres en italique) : aucun logo, aucune police ni image d'Epic Games. */
+  :root {
+    --bg: #070d2b; --bg2: #0e1a5a; --panel: rgba(12, 21, 76, .94); --panel2: #15268a; --panel3: #0a1348;
+    --line: rgba(130, 176, 255, .30); --text: #ffffff; --muted: #a9b9ff;
+    --gold: #ffe500; --gold2: #ffc400; --cyan: #2ad4ff; --red: #ff4d6d; --green: #5cf08a; --pink: #ff4fd8; --violet: #8c4dff;
+    --titre: "Bahnschrift SemiBold Condensed", "Bahnschrift", "Arial Narrow", "Segoe UI", sans-serif;
+    --corps: "Bahnschrift", "Segoe UI", system-ui, sans-serif;
+    --pente: -10deg;
+  }
+  * { box-sizing: border-box; }
+  ::selection { background: var(--gold); color: #1a1200; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 14px/1.4 var(--corps); }
+  .app { display: grid; grid-template-columns: 340px 1fr; height: 100%; }
+
+  /* ----- panneau de gauche ----- */
+  aside {
+    position: relative; z-index: 2; padding: 18px 16px 22px; overflow-y: auto;
+    background:
+      linear-gradient(180deg, rgba(42, 212, 255, .12), rgba(42, 212, 255, 0) 200px),
+      repeating-linear-gradient(115deg, rgba(255, 255, 255, .035) 0 2px, transparent 2px 15px),
+      linear-gradient(180deg, #111f6c 0%, #0b1550 52%, #1a0e56 100%);
+    border-right: 3px solid var(--gold);
+    box-shadow: 8px 0 28px rgba(0, 0, 0, .5);
+    scrollbar-width: thin; scrollbar-color: var(--gold) rgba(255, 255, 255, .08);
+  }
+  aside::-webkit-scrollbar { width: 10px; }
+  aside::-webkit-scrollbar-track { background: rgba(255, 255, 255, .06); }
+  aside::-webkit-scrollbar-thumb { background: var(--gold); }
+
+  h1 { font-family: var(--titre); font-size: 31px; line-height: 1; margin: 0 0 4px; font-weight: 800; font-style: italic; text-transform: uppercase; letter-spacing: .02em; text-shadow: 0 3px 0 rgba(0, 0, 0, .4); }
+  h1::after { content: ""; display: block; width: 110px; height: 6px; margin-top: 8px; background: var(--gold); transform: skewX(var(--pente)); box-shadow: 0 0 16px rgba(255, 229, 0, .55); }
+  .sub { color: var(--muted); font-size: 12px; margin-bottom: 14px; }
+  h2 { display: flex; align-items: center; gap: 9px; font-family: var(--titre); font-style: italic; font-weight: 700; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; color: #fff; margin: 22px 0 10px; }
+  h2::before { content: ""; width: 11px; height: 17px; background: var(--gold); transform: skewX(var(--pente)); flex: none; }
+
+  select {
+    width: 100%; padding: 10px 22px 10px 18px; border: 0; border-bottom: 3px solid var(--gold); color: #fff; cursor: pointer;
+    font: 600 14px var(--corps); letter-spacing: .01em;
+    background: linear-gradient(180deg, #1d33a8, #12227a);
+    clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  }
+  select:hover { background: linear-gradient(180deg, #2441c4, #162a91); }
+  select:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+  select option { background: #0f1a66; color: #fff; }
+
+  label.chk { display: flex; align-items: flex-start; gap: 10px; padding: 5px 0; cursor: pointer; transition: color .12s; }
+  label.chk:hover { color: var(--gold); }
+  label.chk input {
+    appearance: none; -webkit-appearance: none; flex: none; width: 20px; height: 20px; margin: 1px 0 0; cursor: pointer;
+    display: grid; place-content: center; background: #0a1348; border: 2px solid rgba(127, 168, 255, .7);
+    transform: skewX(var(--pente)); transition: background .12s, border-color .12s, box-shadow .12s;
+  }
+  label.chk input:hover { border-color: var(--gold); }
+  label.chk input:checked { background: var(--gold); border-color: #fff9b0; box-shadow: 0 0 12px rgba(255, 229, 0, .6); }
+  label.chk input:checked::after { content: ""; width: 6px; height: 11px; border: solid #1a1200; border-width: 0 3px 3px 0; transform: rotate(40deg) translate(-1px, -1px); }
+  label.chk input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+  .dot { width: 12px; height: 12px; border-radius: 3px; transform: skewX(var(--pente)); display: inline-block; flex: none; }
+  label.chk .dot { margin-top: 4px; }
+
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .card { background: linear-gradient(160deg, #1c33ac 0%, #101f70 100%); border-top: 4px solid var(--cyan); padding: 9px 14px 10px; clip-path: polygon(9px 0, 100% 0, calc(100% - 9px) 100%, 0 100%); }
+  .card b { display: block; font-family: var(--titre); font-style: italic; font-weight: 800; font-size: 28px; line-height: 1.05; text-shadow: 0 2px 0 rgba(0, 0, 0, .35); }
+  .card span { display: block; color: var(--muted); font-family: var(--titre); font-size: 12.5px; letter-spacing: .05em; text-transform: uppercase; }
+  .cards .card:nth-child(1) { border-top-color: #fff; }
+  .cards .card:nth-child(2) { border-top-color: var(--gold); }
+  .cards .card:nth-child(3) { border-top-color: var(--cyan); }
+  .cards .card:nth-child(4) { border-top-color: var(--green); }
+  .cards3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .cards3 .card { text-align: center; padding: 9px 6px 10px; }
+  .cards3 .card:nth-child(1) { border-top-color: var(--gold); }
+  .cards3 .card:nth-child(2) { border-top-color: var(--green); }
+  .cards3 .card:nth-child(3) { border-top-color: var(--cyan); }
+  .cards3 .card b { font-size: 40px; color: var(--gold); }
+  .cards3 .card:nth-child(2) b { color: var(--green); }
+  .cards3 .card:nth-child(3) b { color: var(--cyan); }
+  .cards3 .card span { font-size: 11px; }
+  .cards3.eq { margin-top: 10px; }
+  .cards3.eq .card:nth-child(n) { border-top-color: var(--cyan); padding: 6px 6px 8px; }
+  .cards3.eq .card:nth-child(n) b { color: var(--cyan); font-size: 28px; }
+
+  .zones { list-style: none; margin: 0; padding: 0; }
+  .zones li { display: flex; align-items: center; gap: 10px; padding: 3px 0; font-size: 13.5px; }
+  .zones .bar { height: 9px; background: linear-gradient(90deg, var(--gold2), var(--gold)); transform: skewX(var(--pente)); flex: none; }
+  .zones .n { margin-left: auto; color: var(--gold); font-family: var(--titre); font-style: italic; font-weight: 800; font-size: 16px; font-variant-numeric: tabular-nums; }
+
+  details.gloss { margin-top: 18px; background: rgba(8, 16, 70, .82); border: 1px solid var(--line); border-left: 4px solid var(--gold); padding: 9px 14px; }
+  details.gloss summary { cursor: pointer; font-family: var(--titre); font-style: italic; font-weight: 800; font-size: 15px; letter-spacing: .05em; text-transform: uppercase; }
+  details.gloss dl { margin: 10px 0 2px; font-size: 12.5px; }
+  details.gloss dt { color: var(--gold); font-family: var(--titre); font-style: italic; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; margin-top: 10px; }
+  details.gloss dd { margin: 2px 0 0; color: var(--muted); }
+  .note { background: rgba(8, 16, 70, .8); border-left: 4px solid var(--cyan); padding: 9px 12px; color: var(--muted); font-size: 12.5px; margin-top: 14px; }
+  .mention { margin: 18px 0 0; color: rgba(169, 185, 255, .6); font-size: 11px; line-height: 1.35; }
+
+  /* ----- la carte ----- */
+  main { position: relative; overflow: hidden; background: #0c4d8a; }
+  canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+  canvas.drag { cursor: grabbing; }
+  #tip {
+    position: absolute; pointer-events: none; display: none; max-width: 300px; padding: 10px 14px 11px; font-size: 12.5px;
+    background: linear-gradient(180deg, rgba(20, 36, 130, .97), rgba(8, 14, 70, .97)); border-top: 4px solid var(--gold); box-shadow: 0 12px 30px rgba(0, 0, 0, .55);
+  }
+  #tip b { font-family: var(--titre); font-style: italic; font-size: 15px; letter-spacing: .03em; text-transform: uppercase; }
+  #coords, #help {
+    position: absolute; bottom: 12px; padding: 6px 20px; font-family: var(--titre); font-style: italic; font-size: 13px; letter-spacing: .03em; color: #dfe6ff;
+    background: rgba(6, 12, 62, .88); clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  }
+  #coords { left: 12px; }
+  #help { right: 12px; }
+  #empty { position: absolute; inset: 0; display: none; place-items: center; text-align: center; color: var(--muted); padding: 30px; background: rgba(6, 12, 62, .6); font-size: 16px; }
+  #empty b { color: var(--gold); font-family: var(--titre); font-style: italic; font-size: 26px; text-transform: uppercase; }
+
+  /* ----- écran de chargement ----- */
+  #chargement {
+    position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; overflow: hidden; transition: opacity .45s ease;
+    background:
+      radial-gradient(ellipse at 50% 38%, rgba(42, 212, 255, .30), transparent 62%),
+      repeating-linear-gradient(115deg, rgba(255, 255, 255, .045) 0 2px, transparent 2px 18px),
+      linear-gradient(180deg, #0a1450 0%, #1a0f5c 100%);
+  }
+  #chargement::before { content: ""; position: absolute; width: 60%; height: 220%; left: 20%; top: -60%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .07), transparent); transform: rotate(18deg); animation: rayon 5s ease-in-out infinite alternate; }
+  @keyframes rayon { from { transform: rotate(18deg) translateX(-14%); } to { transform: rotate(18deg) translateX(14%); } }
+  #chargement.fini { opacity: 0; pointer-events: none; }
+  #chargement svg { position: relative; width: 104px; height: 94px; animation: saut 1.1s ease-in-out infinite; transform-origin: 50% 90%; filter: drop-shadow(0 0 18px rgba(255, 229, 0, .5)) drop-shadow(0 8px 14px rgba(0, 0, 0, .45)); }
+  #chargement .lid { transform-origin: 6% 36%; animation: couvercle 1.1s ease-in-out infinite; }
+  @keyframes saut { 0%, 100% { transform: translateY(0) scale(1, 1); } 40% { transform: translateY(-16px) scale(.96, 1.05); } 60% { transform: translateY(0) scale(1.06, .94); } 75% { transform: translateY(-4px); } }
+  @keyframes couvercle { 0%, 55%, 100% { transform: rotate(0deg); } 30% { transform: rotate(-16deg); } }
+  #chargement .titre { position: relative; font-family: var(--titre); font-style: italic; font-weight: 800; font-size: 46px; letter-spacing: .04em; text-transform: uppercase; text-shadow: 0 4px 0 rgba(0, 0, 0, .4); }
+  #chargement .titre::after { content: ""; display: block; height: 6px; margin-top: 6px; background: var(--gold); transform: skewX(var(--pente)); box-shadow: 0 0 18px rgba(255, 229, 0, .6); }
+  #chargement .detail { position: relative; color: var(--muted); font-size: 13px; min-height: 18px; }
+  #chargement .barre { position: relative; width: 260px; height: 8px; background: rgba(255, 255, 255, .14); transform: skewX(var(--pente)); overflow: hidden; }
+  #chargement .barre::after { content: ""; position: absolute; top: 0; bottom: 0; width: 38%; background: linear-gradient(90deg, var(--gold2), var(--gold)); animation: glisse 1.15s ease-in-out infinite; }
+  @keyframes glisse { 0% { left: -40%; } 100% { left: 100%; } }
+  #chargement .astuce {
+    position: absolute; bottom: 8vh; max-width: min(640px, 86vw); padding: 10px 28px; font-size: 15px; background: rgba(6, 12, 60, .78); border-left: 5px solid var(--gold);
+    clip-path: polygon(14px 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
+  }
+  #chargement .astuce b { font-family: var(--titre); font-style: italic; color: var(--gold); margin-right: 10px; letter-spacing: .06em; }
+  .cards3 .card b.vide, .cards b.vide { opacity: .4; animation: pouls .9s ease-in-out infinite alternate; }
+  @keyframes pouls { from { opacity: .2; } to { opacity: .7; } }
+  @media (prefers-reduced-motion: reduce) { #chargement svg, #chargement .lid, #chargement .barre::after, #chargement::before { animation: none; } }
+  @media (max-width: 800px) { .app { grid-template-columns: 1fr; grid-template-rows: auto 60vh; } aside { max-height: 40vh; } }
+</style>
+</head>
+<body>
+<div id="chargement" role="status" aria-live="polite">
+  <svg viewBox="0 0 46 40" aria-hidden="true">
+    <rect x="3" y="16" width="40" height="21" rx="3" fill="#FFD21F" stroke="#4A2F00" stroke-width="2"/>
+    <rect x="3" y="15" width="40" height="4" fill="#7A5200"/>
+    <rect x="10" y="17" width="4" height="20" fill="#7A5200"/><rect x="32" y="17" width="4" height="20" fill="#7A5200"/>
+    <g class="lid"><path d="M3,17 L3,11 Q3,2 12,2 L34,2 Q43,2 43,11 L43,17 Z" fill="#F2A71F" stroke="#4A2F00" stroke-width="2" stroke-linejoin="round"/>
+      <rect x="10" y="3" width="4" height="14" fill="#7A5200"/><rect x="32" y="3" width="4" height="14" fill="#7A5200"/></g>
+    <rect x="18.5" y="12" width="9" height="12" rx="2" fill="#2E1D00" stroke="#FFF08A" stroke-width="1.2"/><circle cx="23" cy="17.2" r="1.8" fill="#FFF08A"/>
+  </svg>
+  <div class="titre">Chargement</div>
+  <div class="barre"></div>
+  <div class="detail" id="chargementDetail">Lecture de tes parties…</div>
+  <div class="astuce"><b>ASTUCE</b><span id="astuce"></span></div>
+</div>
+<script>
+// Une astuce au hasard sur l'écran de chargement (comme dans le jeu).
+(function () {
+  var t = [
+    "Ouvre Carte Fortnite AVANT de lancer le jeu, jamais pendant.",
+    "Passe la souris sur un coffre pour voir ce qu'il contenait.",
+    "La couleur d'un coffre est la rareté de sa meilleure arme.",
+    "Molette : zoom. Glisser : déplacer. Double-clic : recentrer.",
+    "Coche « Zones chaudes » pour voir où les adversaires atterrissent.",
+    "Choisis un joueur à suivre pour voir son trajet en rose."
+  ];
+  document.getElementById('astuce').textContent = t[Math.floor(Math.random() * t.length)];
+})();
+</script>
+<div class="app">
+  <aside>
+    <h1>Carte de mes parties</h1>
+    <div class="sub" id="sub">Lue depuis tes replays Fortnite</div>
+
+    <h2>Compteur de coffres</h2>
+    <div class="cards3" id="counter"><div class="card"><b class="vide">…</b><span>au total</span></div><div class="card"><b class="vide">…</b><span>dernière partie</span></div><div class="card"><b class="vide">…</b><span>cette session</span></div></div>
+    <div class="cards3 eq" id="counterEq"></div>
+    <div class="sub" id="counterSub" style="margin:8px 0 0"></div>
+    <label class="chk" style="padding-top:6px"><input type="checkbox" id="c-falls" checked><span>Compter les coffres tombés ou cassés <span style="color:var(--muted)">(estimation)</span></span></label>
+
+    <h2>Partie</h2>
+    <select id="game"></select>
+
+    <h2>Joueur à suivre</h2>
+    <select id="player"></select>
+    <div class="note" id="pinfo" style="display:none"></div>
+
+    <h2>Couches</h2>
+    <label class="chk"><input type="checkbox" id="l-path" checked><span class="dot" style="background:linear-gradient(90deg,#2ad4ff,#ffaa1e)"></span><span>Mon trajet <span style="color:var(--muted)">(du saut du bus à la fin de ma partie, bleu → orange)</span></span></label>
+    <label class="chk"><input type="checkbox" id="l-chest" checked><span class="dot" style="background:var(--gold)"></span><span>Mes coffres <span style="color:var(--muted)">(couleur = meilleure arme)</span></span></label>
+    <div style="display:flex;gap:10px;padding:0 0 4px 30px;font-size:11.5px;color:var(--muted);flex-wrap:wrap">
+      <span><i class="dot" style="background:#b9c0cc;width:9px;height:9px"></i> commun</span>
+      <span><i class="dot" style="background:#66d13a;width:9px;height:9px"></i> peu commun</span>
+      <span><i class="dot" style="background:#35a4ff;width:9px;height:9px"></i> rare</span>
+      <span><i class="dot" style="background:#c35cff;width:9px;height:9px"></i> épique</span>
+      <span><i class="dot" style="background:#ff9d1c;width:9px;height:9px"></i> légendaire</span>
+    </div>
+    <label class="chk"><input type="checkbox" id="l-ammo" checked><span class="dot" style="background:#8aa0c0"></span><span>Caisses de munitions</span></label>
+    <label class="chk"><input type="checkbox" id="l-land" checked><span class="dot" style="background:var(--red)"></span><span>Mon atterrissage <span style="color:var(--muted)">(là où je touche le sol)</span></span></label>
+    <div class="sub" style="margin:12px 0 2px">Autres couches (à cocher si tu veux) :</div>
+    <label class="chk"><input type="checkbox" id="l-mate"><span class="dot" style="background:var(--green)"></span><span>Mon équipe <span style="color:var(--muted)">(trajet et coffres de mes équipiers, en vert)</span></span></label>
+    <label class="chk"><input type="checkbox" id="l-falls"><span class="dot" style="background:#b36bff"></span><span>Coffres tombés ou cassés par moi <span style="color:var(--muted)">(estimation : sol cassé sous un coffre, coffre cassé à la pioche)</span></span></label>
+    <label class="chk"><input type="checkbox" id="l-boxes"><span class="dot" style="background:#ffb347"></span><span>Tous les coffres <span style="color:var(--muted)">(ouverts par n'importe quel joueur, pas seulement moi)</span></span></label>
+    <label class="chk"><input type="checkbox" id="l-heat"><span class="dot" style="background:radial-gradient(#ff7a18,#ffd23f)"></span><span>Zones chaudes <span style="color:var(--muted)">(là où les adversaires atterrissent)</span></span></label>
+    <label class="chk"><input type="checkbox" id="l-others"><span class="dot" style="background:var(--cyan)"></span><span>Trajet des adversaires <span style="color:var(--muted)">(du saut jusqu'à l'endroit où on les voit)</span></span></label>
+    <label class="chk" style="padding-left:30px"><input type="checkbox" id="l-bots"><span>inclure les bots <span style="color:var(--muted)">(joueurs contrôlés par l'ordinateur)</span></span></label>
+    <label class="chk"><input type="checkbox" id="l-poi" checked><span class="dot" style="background:#fff"></span><span>Noms des lieux</span></label>
+
+    <h2>Bilan</h2>
+    <div class="cards" id="cards"><div class="card"><b class="vide">…</b><span>partie</span></div><div class="card"><b class="vide">…</b><span>coffres ouverts</span></div><div class="card"><b class="vide">…</b><span>caisses de munitions</span></div><div class="card"><b class="vide">…</b><span>coffres / partie</span></div></div>
+
+    <h2>Mes coffres, par lieu</h2>
+    <ul class="zones" id="zChests"></ul>
+
+    <h2>Coffres ouverts par tous les joueurs, par lieu</h2>
+    <ul class="zones" id="zAll"></ul>
+
+    <h2>Où les adversaires atterrissent le plus (zones à éviter)</h2>
+    <ul class="zones" id="zHot"></ul>
+
+    <h2>Mes atterrissages, par lieu</h2>
+    <ul class="zones" id="zLand"></ul>
+
+    <div class="note" id="note"></div>
+    <details class="gloss" open>
+      <summary>Vocabulaire : c'est quoi quoi ?</summary>
+      <dl>
+        <dt>Saut, chute</dt><dd>On saute du bus et on tombe (puis on plane) jusqu'au sol. Le point blanc sur la carte est le moment du saut.</dd>
+        <dt>Atterrissage</dt><dd>Le moment où un joueur touche le sol pour la première fois après sa chute.</dd>
+        <dt>Vu atterrir / perdu de vue</dt><dd>Pour les adversaires. « Vu atterrir » (point plein) : on les a vus toucher le sol. « Perdu de vue » (point creux) : le replay ne les suivait plus avant qu'ils atterrissent, donc leur point est approximatif.</dd>
+        <dt>Mort, élimination</dt><dd>Ce n'est pas affiché. Ta trace s'arrête à la fin de ta partie (victoire, élimination ou départ) : la croix rouge est le dernier endroit où tu étais suivi. « N éliminations » = le nombre de joueurs qu'il a éliminés.</dd>
+        <dt>Coffre</dt><dd>Un conteneur d'où sort au moins une arme. Sa couleur = la rareté de sa meilleure arme (gris commun, vert peu commun, bleu rare, violet épique, orange légendaire).</dd>
+        <dt>Caisse de munitions</dt><dd>Un conteneur d'où sortent surtout des munitions, sans arme. Elle ne compte pas dans le compteur de coffres.</dd>
+        <dt>Conteneur</dt><dd>Mot général : un coffre ou une caisse de munitions.</dd>
+        <dt>Coffre tombé ou cassé (estimation)</dt><dd>Un coffre dont le contenu est sorti tout près de toi sans que tu l'aies ouvert (sol cassé sous un coffre, ou coffre cassé à la pioche). Déduit, pas lu directement : marqueur violet « ? ». Compté dans le total, avec une case pour le retirer.</dd>
+        <dt>Estimation</dt><dd>Une valeur déduite (pas écrite directement dans le replay), donc possiblement fausse.</dd>
+        <dt>Bot</dt><dd>Un joueur contrôlé par l'ordinateur, pas par une personne.</dd>
+        <dt>Équipier, équipe</dt><dd>Les joueurs de ta propre équipe (ton duo). Affichés en vert avec leur pseudo.</dd>
+        <dt>Coffres de l'équipe</dt><dd>Tes coffres (exacts) + ceux de tes équipiers (estimation : le replay ne dit « début de fouille » que pour toi, alors on compte les coffres ouverts à moins de 4,5 m d'un équipier sans que ce soit toi). Un équipier loin de toi n'est pas vu : le nombre est un minimum. Tes propres compteurs restent séparés.</dd>
+        <dt>Zone chaude</dt><dd>Un endroit où beaucoup d'adversaires atterrissent. À éviter si tu veux être tranquille.</dd>
+        <dt>Session</dt><dd>Tes dernières parties jouées d'affilée, avec moins de 1 h 30 entre deux.</dd>
+        <dt>Marqueurs</dt><dd>Rectangle de couleur = coffre · losange gris = caisse de munitions · losange violet « ? » = coffre tombé ou cassé · point rouge = mon atterrissage · croix rouge = fin de ma trace · point blanc = mon saut du bus.</dd>
+      </dl>
+    </details>
+    <p class="mention">Outil de fan, non affilié à Epic Games. « Fortnite » est une marque d'Epic Games.</p>
+
+  </aside>
+  <main>
+    <canvas id="c"></canvas>
+    <div id="tip"></div>
+    <div id="coords"></div>
+    <div id="help">Molette : zoom · glisser : déplacer · double-clic : recentrer</div>
+    <div id="empty"><div><b>Aucune partie trouvée</b><br><br>Ouvre <b style="font-size:inherit">Carte Fortnite</b> (le panneau), puis clique sur « Ouvrir la carte de mes parties »<br>après avoir joué avec les replays activés.</div></div>
+  </main>
+</div>
+
+<script src="donnees/parties.js"></script>
+<script src="donnees/reglages.js"></script>
+<script src="ressources/pois.js"></script>
+<script src="ressources/terre.js"></script>
+<script>
+// Calibrage monde -> image 2048x2048 (ajuste sur 9 lieux nommes de la carte, erreur <= 2 px).
+// Attention : sur la carte, l'axe X du jeu va vers la droite et l'axe Y vers le bas.
+const IMG = 2048;
+const fx = X => 976.65 + 0.006613 * X;
+const fy = Y => 1016.69 + 0.006605 * Y;
+const unx = u => (u - 976.65) / 0.006613;
+const uny = v => (v - 1016.69) / 0.006605;
+// Police des étiquettes de la carte (condensée et penchée, comme les titres) ; repli sur les polices Windows courantes.
+const FONTE_TITRE = '"Bahnschrift SemiBold Condensed", "Bahnschrift", "Arial Narrow", "Segoe UI", sans-serif';
+
+const PARTIES = window.PARTIES || [];
+// Masque terre/mer (calcule depuis l'image de la carte) : un coffre ne peut pas etre dans l'eau, on ecarte ces faux points.
+function onLand(X, Y) {
+  const T = window.TERRE; if (!T) return true;
+  const c = IMG / T.n, i = Math.floor(fx(X) / c), j = Math.floor(fy(Y) / c);
+  return i >= 0 && j >= 0 && i < T.n && j < T.n && T.rows[j][i] === '1';
+}
+PARTIES.forEach(g => { g.boxes = (g.boxes || []).filter(b => onLand(b[1], b[2])); });
+const POIS = (window.POIS || []).filter(p => p.t === 'poi');
+const $ = id => document.getElementById(id);
+const cv = $('c'), ctx = cv.getContext('2d');
+const img = new Image(); img.src = 'ressources/map.png';
+let view = { s: 1, ox: 0, oy: 0 };
+let W = 0, H = 0, dpr = window.devicePixelRatio || 1;
+
+function resize() {
+  const r = cv.getBoundingClientRect();
+  W = r.width; H = r.height;
+  cv.width = W * dpr; cv.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  if (!userMoved && typeof vueInitiale === 'function') vueInitiale();
+  draw();
+}
+let userMoved = false;
+function fit() {
+  const s = Math.min(W, H) / IMG * 1.0;
+  view = { s, ox: (W - IMG * s) / 2, oy: (H - IMG * s) / 2 };
+}
+function modeName(p) {
+  if (!p) return '';
+  const t = p.replace(/^Playlist_/, '');
+  const parts = [];
+  parts.push(/NoBuild/i.test(t) ? 'Zéro construction' : 'Battle Royale');
+  if (/Solo/i.test(t)) parts.push('Solo'); else if (/Duo/i.test(t)) parts.push('Duo'); else if (/Trio/i.test(t)) parts.push('Trio'); else if (/Squad/i.test(t)) parts.push('Escouade');
+  return parts.join(' · ');
+}
+const P = (X, Y) => [view.ox + fx(X) * view.s, view.oy + fy(Y) * view.s];
+
+function nearestPoi(X, Y, max = 28000) {
+  let best = null, bd = max;
+  for (const p of POIS) { const d = Math.hypot(p.x - X, p.y - Y); if (d < bd) { bd = d; best = p; } }
+  return best ? best.n : 'Hors des lieux nommés';
+}
+
+// ----- selection de partie
+const sel = $('game');
+sel.innerHTML = '<option value="all">Toutes les parties (' + PARTIES.length + ')</option>' + PARTIES.map((g, i) => {
+  const d = new Date(g.date).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const nc = g.chests.filter(c => c.k === 'coffre').length;
+  const mates = (g.others || []).filter(o => o.mate), ne = mates.reduce((a, o) => a + (o.chests || []).filter(c => c.k === 'coffre').length, 0);
+  return `<option value="${i}">${d} · ${g.placement ? g.placement + 'e' : '—'} · ${nc} coffre${nc > 1 ? 's' : ''}${mates.length ? ' · équipe ' + (nc + ne) : ''}</option>`;
+}).join('');
+const games = () => sel.value === 'all' ? PARTIES : [PARTIES[+sel.value]];
+
+// ----- selecteur de joueur : les humains vus dans les parties (les equipiers en premier)
+const psel = $('player');
+function buildPlayers() {
+  const m = new Map();
+  for (const g of games().filter(Boolean)) for (const o of g.others) if (!o.bot && o.n) {
+    const e = m.get(o.n) || { n: o.n, mate: false, games: 0, plat: o.plat };
+    e.mate = e.mate || o.mate; e.games++; m.set(o.n, e);
+  }
+  const list = [...m.values()].sort((a, b) => (b.mate - a.mate) || a.n.localeCompare(b.n, 'fr', { sensitivity: 'base' }));
+  psel.innerHTML = '<option value="">— aucun —</option>' + list.map(e =>
+    `<option value="${e.n.replace(/"/g, '&quot;')}">${e.mate ? '★ ' : ''}${e.n}${e.mate ? ' (équipier)' : ''} · ${e.plat || ''}${e.games > 1 ? ' · ' + e.games + ' parties' : ''}</option>`).join('');
+  if (!list.some(e => e.n === selName)) selName = '';
+  psel.value = selName;
+}
+function showPlayerInfo() {
+  const box = $('pinfo');
+  if (!selName) { box.style.display = 'none'; return; }
+  const rows = games().filter(Boolean).flatMap(g => g.others.filter(o => o.n === selName).map(o => ({ o, g })));
+  if (!rows.length) { box.style.display = 'none'; return; }
+  const o = rows[0].o, chests = rows.reduce((a, r) => a + r.o.chests.filter(c => c.k === 'coffre').length, 0);
+  const dur = rows.reduce((a, r) => a + (r.o.path.length > 1 ? r.o.path[r.o.path.length - 1][0] - r.o.path[0][0] : 0), 0);
+  box.style.display = 'block'; box.style.borderLeftColor = 'var(--pink)';
+  const suivi = dur ? 'Suivi pendant ' + dur + ' s' + (o.landed ? ' (on l\'a vu atterrir)' : ' (perdu de vue avant d\'atterrir)') : 'Aucune position enregistrée : il était trop loin de toi';
+  box.innerHTML = '<b style="color:var(--text)">' + selName + '</b>' + (o.mate ? ' · <span style="color:var(--green)">dans ton équipe</span>' : ' · adversaire') + '<br>' +
+    (o.plat || '—') + ' · ' + rows.length + ' partie' + (rows.length > 1 ? 's' : '') + ' avec toi<br>' +
+    (o.pl ? 'Classement final : ' + (o.pl === 1 ? '1er' : o.pl + 'e') + ' · ' : '') + (o.k != null ? o.k + ' joueur' + (o.k > 1 ? 's' : '') + ' éliminé' + (o.k > 1 ? 's' : '') + ' par lui' : '') + '<br>' + suivi +
+    (o.mate ? '<br>Coffres ouverts près de lui (estimation) : ' + chests : '');
+}
+psel.addEventListener('change', () => { selName = psel.value; showPlayerInfo(); draw(); });
+
+// ----- dessin
+const color = f => { // bleu -> orange selon l'avancement de la partie
+  const a = [42, 212, 255], b = [255, 170, 30];
+  return `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * f)).join(',')})`;
+};
+function drawPOIs() {
+  ctx.font = `italic 700 14px ${FONTE_TITRE}`; ctx.textAlign = 'center'; ctx.lineJoin = 'round';
+  for (const p of POIS) {
+    const [x, y] = P(p.x, p.y);
+    ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(5, 10, 52, .92)'; ctx.strokeText(p.n.toUpperCase(), x, y);
+    ctx.fillStyle = '#fff'; ctx.fillText(p.n.toUpperCase(), x, y);
+  }
+}
+let selName = '';
+// Derniere position connue de chaque adversaire (sa destination quand il est encore en chute) : la ou ils tombent.
+function hotPoints(gs) {
+  const bots = $('l-bots').checked, pts = [];
+  for (const g of gs) for (const o of g.others) {
+    if (o.mate || (o.bot && !bots) || o.path.length < 2) continue;
+    if (o.land) { pts.push(o.land); continue; }               // vu au sol : son vrai point d'atterrissage
+    const l = o.path[o.path.length - 1]; pts.push([l[1], l[2]]);   // sinon : la ou il etait en chute quand le replay l'a perdu
+  }
+  return pts;
+}
+function drawHeat(gs) {
+  if (!$('l-heat').checked) return;
+  const r = Math.max(18, 46 * Math.min(view.s * 1.5, 1.6));
+  for (const [X, Y] of hotPoints(gs)) {
+    const [x, y] = P(X, Y);
+    const gr = ctx.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, 'rgba(255,122,24,.38)'); gr.addColorStop(.55, 'rgba(255,190,50,.16)'); gr.addColorStop(1, 'rgba(255,210,63,0)');
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+  }
+}
+function labelAt(x, y, text, col) {
+  ctx.font = `italic 700 14px ${FONTE_TITRE}`; ctx.textAlign = 'left'; ctx.lineJoin = 'round';
+  ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(5, 10, 52, .92)'; ctx.strokeText(text, x + 9, y - 8);
+  ctx.fillStyle = col; ctx.fillText(text, x + 9, y - 8);
+}
+function polyline(pts, col, w, alpha) {
+  if (pts.length < 2) return;
+  ctx.globalAlpha = alpha; ctx.strokeStyle = col; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath(); pts.forEach((p, i) => { const [x, y] = P(p[1], p[2]); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke();
+  ctx.globalAlpha = 1;
+}
+function endMarker(o, col, big) {
+  const l = o.path[o.path.length - 1]; if (!l) return;
+  const [x, y] = P(l[1], l[2]), r = big ? 6 : 3.5;
+  ctx.fillStyle = col; ctx.strokeStyle = col; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, 7);
+  if (o.landed) { ctx.fill(); ctx.strokeStyle = '#050a34'; ctx.stroke(); } else ctx.stroke();
+}
+function drawOthers(gs) {
+  const bots = $('l-bots').checked, many = gs.length > 1;
+  for (const g of gs) for (const o of g.others) {
+    if (o.mate || (o.bot && !bots) || o.path.length < 2) continue;
+    if (selName && o.n === selName) continue; // dessine plus tard, par-dessus
+    const col = o.bot ? 'rgb(150,160,175)' : 'rgb(42,212,255)';
+    polyline(o.path, col, 1.5, many ? .2 : .45);
+    endMarker(o, col, false);
+  }
+}
+function drawFocus(gs) {
+  if (!selName) return;
+  for (const g of gs) for (const o of g.others) if (o.n === selName && o.path.length) {
+    polyline(o.path, '#ff4fd8', 4, 1);
+    const f = o.path[0], [fx0, fy0] = P(f[1], f[2]);
+    ctx.fillStyle = '#fff'; ctx.strokeStyle = '#050a34'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(fx0, fy0, 4, 0, 7); ctx.fill(); ctx.stroke();
+    endMarker(o, '#ff4fd8', true);
+    const l = o.path[o.path.length - 1], [x, y] = P(l[1], l[2]); labelAt(x, y, o.n, '#ff9cec');
+  }
+}
+function drawMate(gs) {
+  if (!$('l-mate').checked) return;
+  for (const g of gs) for (const o of g.others) if (o.mate) {
+    polyline(o.path, '#5cf08a', gs.length > 1 ? 2 : 3.5, gs.length > 1 ? .6 : 1);
+    if (o.path.length) {
+      endMarker(o, '#5cf08a', true);
+      const l = o.path[o.path.length - 1], [x, y] = P(l[1], l[2]);
+      if (gs.length === 1) labelAt(x, y, o.n || 'Équipier', '#9bffbf');
+    }
+    for (const c of o.chests) {
+      if (c.k !== 'coffre') continue;
+      const [x, y] = P(c.x, c.y); chestHits.push({ x, y, c, g, who: o.n });
+      ctx.fillStyle = '#5cf08a'; ctx.strokeStyle = '#050a34'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.roundRect(x - 8, y - 6, 16, 12, 3); ctx.fill(); ctx.stroke();
+    }
+  }
+}
+// Tous les conteneurs vus ouverts : un point par conteneur ; sur plusieurs parties on regroupe les points proches (un "lieu de coffre").
+function drawBoxes(gs) {
+  if (!$('l-boxes').checked) return;
+  const withAmmo = $('l-ammo').checked;
+  const pts = [];
+  gs.forEach(g => (g.boxes || []).forEach(b => { if (b[3] === 1 || (b[3] === 2 && withAmmo)) pts.push({ x: b[1], y: b[2], k: b[3], mine: b[4], g }); }));
+  if (gs.length === 1) {
+    for (const p of pts) {
+      if (p.mine) continue; // deja dessine par "Mes coffres"
+      const [x, y] = P(p.x, p.y);
+      chestHits.push({ x, y, c: { k: p.k === 1 ? 'coffre' : 'munitions', items: [], x: p.x, y: p.y }, g: p.g, any: true });
+      ctx.fillStyle = p.k === 1 ? 'rgba(255,179,71,.95)' : 'rgba(138,160,192,.9)'; ctx.strokeStyle = '#050a34'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(x, y, 4.5, 0, 7); ctx.fill(); ctx.stroke();
+    }
+    return;
+  }
+  const spots = [];
+  for (const p of pts) {
+    const s = spots.find(q => q.k === p.k && Math.hypot(q.x - p.x, q.y - p.y) < 250);
+    if (s) { s.x = (s.x * s.n + p.x) / (s.n + 1); s.y = (s.y * s.n + p.y) / (s.n + 1); s.n++; s.games.add(p.g.id); }
+    else spots.push({ x: p.x, y: p.y, k: p.k, n: 1, games: new Set([p.g.id]) });
+  }
+  for (const s of spots) {
+    const [x, y] = P(s.x, s.y), r = 4 + Math.min(9, s.n * 1.4);
+    chestHits.push({ x, y, c: { k: s.k === 1 ? 'coffre' : 'munitions', items: [] }, spot: s });
+    ctx.fillStyle = s.k === 1 ? 'rgba(255,179,71,.85)' : 'rgba(138,160,192,.8)'; ctx.strokeStyle = '#050a34'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.stroke();
+    if (s.n > 1) { ctx.fillStyle = '#050a34'; ctx.font = `italic 800 12px ${FONTE_TITRE}`; ctx.textAlign = 'center'; ctx.fillText(s.n, x, y + 4); }
+  }
+}
+function drawPath(gs) {
+  for (const g of gs) {
+    const pts = g.path; if (pts.length < 2) continue;
+    const many = gs.length > 1;
+    ctx.lineWidth = many ? 2 : 3.5; ctx.lineCap = 'round'; ctx.globalAlpha = many ? .6 : 1;
+    for (let i = 1; i < pts.length; i++) {
+      const [x1, y1] = P(pts[i - 1][1], pts[i - 1][2]), [x2, y2] = P(pts[i][1], pts[i][2]);
+      ctx.strokeStyle = color(i / pts.length);
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    // depart (saut du bus) et fin
+    const [sx, sy] = P(pts[0][1], pts[0][2]); ctx.fillStyle = '#fff'; ctx.strokeStyle = '#050a34'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(sx, sy, 5, 0, 7); ctx.fill(); ctx.stroke();
+    const [ex, ey] = P(pts[pts.length - 1][1], pts[pts.length - 1][2]);
+    ctx.strokeStyle = '#ff4d6d'; ctx.lineWidth = 3; ctx.beginPath();
+    ctx.moveTo(ex - 5, ey - 5); ctx.lineTo(ex + 5, ey + 5); ctx.moveTo(ex + 5, ey - 5); ctx.lineTo(ex - 5, ey + 5); ctx.stroke();
+    // ton pseudo au bout de ton tracé (sous celui de l'équipier pour ne pas se chevaucher)
+    if (gs.length === 1 && g.player) labelAt(ex, ey + 26, g.player + ' (toi)', '#ffe500');
+  }
+}
+function drawLand(gs) {
+  for (const g of gs) if (g.landing) {
+    const [x, y] = P(g.landing[1], g.landing[2]);
+    const r = 34 * Math.max(.6, Math.min(view.s * 1.6, 1.4));
+    const gr = ctx.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, 'rgba(255,77,109,.65)'); gr.addColorStop(1, 'rgba(255,77,109,0)');
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+    ctx.fillStyle = '#ff4d6d'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(x, y, 5, 0, 7); ctx.fill(); ctx.stroke();
+  }
+}
+const chestHits = [];
+// Rarete de la meilleure arme sortie d'un coffre (codes du jeu : C, UC, R, VR, SR)
+const RARITY = [
+  { n: 'commun', c: '#b9c0cc' }, { n: 'peu commun', c: '#66d13a' }, { n: 'rare', c: '#35a4ff' },
+  { n: 'épique', c: '#c35cff' }, { n: 'légendaire', c: '#ff9d1c' }
+];
+// Coffres peut-etre tombes / casses par toi (sol casse, pioche...) : ESTIMATION, comptes dans ton total (case a decocher dans le panneau).
+function drawFalls(gs) {
+  if (!$('l-falls').checked) return;
+  for (const g of gs) for (const f of (g.falls || [])) {
+    if (f[5]) continue; // un autre joueur suivi etait plus proche : probablement pas toi
+    const [x, y] = P(f[1], f[2]);
+    chestHits.push({ x, y, c: { k: 'coffre', items: [], x: f[1], y: f[2] }, g, fall: f });
+    ctx.shadowColor = '#8c4dff'; ctx.shadowBlur = 12;
+    ctx.fillStyle = '#b36bff'; ctx.strokeStyle = '#050a34'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x, y - 10); ctx.lineTo(x + 9, y); ctx.lineTo(x, y + 10); ctx.lineTo(x - 9, y); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
+    ctx.fillStyle = '#fff'; ctx.font = `italic 800 13px ${FONTE_TITRE}`; ctx.textAlign = 'center'; ctx.fillText('?', x, y + 4);
+  }
+}
+function drawChests(gs) {
+  for (const g of gs) for (const c of g.chests) {
+    if (c.k === 'munitions' && !$('l-ammo').checked) continue;
+    if (c.k === 'coffre' && !$('l-chest').checked) continue;
+    if (c.k === 'inconnu') continue; // fouille sans contenu : ce n'est pas un conteneur, on ne l'affiche pas
+    const [x, y] = P(c.x, c.y); chestHits.push({ x, y, c, g });
+    ctx.lineWidth = 2; ctx.strokeStyle = '#050a34';
+    if (c.k === 'coffre') {
+      const col = RARITY[c.r] ? RARITY[c.r].c : '#ffe500';
+      ctx.shadowColor = col; ctx.shadowBlur = 14;                       // petite lueur de la couleur de la rareté
+      ctx.fillStyle = col; ctx.beginPath(); ctx.roundRect(x - 9, y - 7, 18, 14, 3); ctx.fill(); ctx.stroke();
+      ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
+      ctx.strokeStyle = '#8a5a00'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x - 9, y - 1); ctx.lineTo(x + 9, y - 1); ctx.stroke();
+      ctx.fillStyle = '#8a5a00'; ctx.fillRect(x - 2, y - 3, 4, 5);
+    } else {
+      ctx.fillStyle = '#8aa0c0'; ctx.beginPath(); ctx.moveTo(x, y - 7); ctx.lineTo(x + 7, y); ctx.lineTo(x, y + 7); ctx.lineTo(x - 7, y); ctx.closePath(); ctx.fill(); ctx.stroke();
+    }
+  }
+}
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0c4d8a'; ctx.fillRect(0, 0, W, H);
+  if (img.complete && img.naturalWidth) ctx.drawImage(img, view.ox, view.oy, IMG * view.s, IMG * view.s);
+  const gs = games().filter(Boolean);
+  if ($('l-poi').checked) drawPOIs();
+  chestHits.length = 0;
+  drawHeat(gs);
+  if ($('l-others').checked) drawOthers(gs);
+  drawBoxes(gs);
+  drawMate(gs);
+  if ($('l-path').checked) drawPath(gs);
+  if ($('l-land').checked) drawLand(gs);
+  drawChests(gs);
+  drawFalls(gs);
+  drawFocus(gs);
+}
+
+// ----- bilan
+function stats() {
+  const gs = games().filter(Boolean);
+  const ch = gs.flatMap(g => g.chests.filter(c => c.k === 'coffre'));
+  const fallPts = $('c-falls').checked ? gs.flatMap(g => (g.falls || []).filter(f => !f[5]).map(f => [f[1], f[2]])) : [];
+  const nfall = fallPts.length;
+  const am = gs.flatMap(g => g.chests.filter(c => c.k === 'munitions'));
+  const ld = gs.filter(g => g.landing);
+  const eqTotal = ch.length + nfall + gs.reduce((a, g) => a + (g.others || []).filter(o => o.mate).reduce((b, o) => b + (o.chests || []).filter(c => c.k === 'coffre').length, 0), 0);   // équipe = moi + équipiers (estimation)
+  $('cards').innerHTML = `
+    <div class="card"><b>${gs.length}</b><span>partie${gs.length > 1 ? 's' : ''}</span></div>
+    <div class="card"><b style="color:var(--gold)">${ch.length + nfall}</b><span>coffres ouverts</span></div>
+    <div class="card"><b>${am.length}</b><span>caisses de munitions</span></div>
+    <div class="card"><b>${gs.length ? ((ch.length + nfall) / gs.length).toFixed(1) : '0'}</b><span>coffres / partie</span></div>
+    <div class="card"><b style="color:var(--cyan)">${eqTotal}</b><span>coffres de l'équipe</span></div>
+    <div class="card"><b style="color:var(--cyan)">${gs.length ? (eqTotal / gs.length).toFixed(1) : '0'}</b><span>équipe / partie</span></div>`;
+  const list = (el, pts, color) => {
+    const m = {}; pts.forEach(p => { const n = nearestPoi(p[0], p[1]); m[n] = (m[n] || 0) + 1; });
+    const rows = Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 8), max = rows.length ? rows[0][1] : 1;
+    $(el).innerHTML = rows.length ? rows.map(([n, v]) => `<li><span style="min-width:120px">${n}</span><span class="bar" style="width:${Math.max(6, 90 * v / max)}px;background:${color}"></span><span class="n">${v}</span></li>`).join('') : '<li style="color:var(--muted)">—</li>';
+  };
+  list('zChests', ch.map(c => [c.x, c.y]).concat(fallPts), 'var(--gold)');
+  list('zHot', hotPoints(gs), '#ff7a18');
+  list('zAll', gs.flatMap(g => (g.boxes || []).filter(b => b[3] === 1).map(b => [b[1], b[2]])), '#ffb347');
+  list('zLand', ld.map(g => [g.landing[1], g.landing[2]]), 'var(--red)');
+  const g = gs.length === 1 ? gs[0] : null;
+  $('note').innerHTML = g
+    ? `<b>${g.player || ''}</b> · ${modeName(g.playlist)}<br><br><span style="color:var(--muted)">Les adversaires ne sont suivis que tant qu'ils restent près de toi. « Vu atterrir » (point plein) = on les a vus toucher le sol. « Perdu de vue » (point creux) = le replay ne les suit plus avant qu'ils atterrissent.</span>`
+    : `Plus tu joues avec les replays activés, plus les zones deviennent fiables. Les adversaires ne sont suivis que tant qu'ils restent près de toi.`;
+  if (g) {   // une seule partie : le détail de l'équipe (moi + chaque équipier)
+    const mates = (g.others || []).filter(o => o.mate);
+    if (mates.length) $('note').innerHTML += `<br><br><b style="color:var(--cyan)">Équipe : ${g.chests.filter(c => c.k === 'coffre').length + nfall} (toi) + ${mates.map(o => (o.n || 'équipier') + ' ' + (o.chests || []).filter(c => c.k === 'coffre').length).join(' + ')}</b> (estimation pour tes équipiers).`;
+    // le résumé de la partie : classement, éliminations, plateforme de celui qui m'a éliminé
+    const PLAT = { WIN: 'PC', MAC: 'Mac', LNX: 'Linux', PSN: 'PlayStation', PS4: 'PlayStation', PS5: 'PlayStation', XBL: 'Xbox', XB1: 'Xbox', XSX: 'Xbox', SWT: 'Switch', NSW: 'Switch', AND: 'Android', IOS: 'iOS' };
+    const kl = g.killer;
+    $('note').innerHTML += `<br><br><b>Classement : ${g.placement ? (g.placement === 1 ? 'N° 1 (victoire)' : g.placement + 'e') : '—'}</b>` + ` · ${g.kills || 0} élimination${(g.kills || 0) > 1 ? 's' : ''}` +
+      (g.placement === 1 ? '' : kl ? ` · tué par ${kl.kind === 'joueur' ? 'un joueur sur ' + (PLAT[kl.plat] || kl.plat || 'plateforme inconnue') : kl.kind === 'bot' ? 'un bot' : 'la zone ou une chute'}` : '');
+  }
+  const nf = gs.reduce((a, g) => a + (g.falls || []).filter(f => !f[5]).length, 0);
+  if (nf) $('note').innerHTML += `<br><b style="color:#d6a8ff">${nf} coffre${nf > 1 ? 's' : ''} peut-être tombé${nf > 1 ? 's' : ''} ou cassé${nf > 1 ? 's' : ''} par moi</b> (estimation, comptés dans « coffres ouverts »).`;
+}
+
+// ----- interaction
+let drag = null;
+cv.addEventListener('mousedown', e => { userMoved = true; drag = { x: e.clientX, y: e.clientY, ox: view.ox, oy: view.oy }; cv.classList.add('drag'); });
+addEventListener('mouseup', () => { drag = null; cv.classList.remove('drag'); });
+cv.addEventListener('mousemove', e => {
+  const r = cv.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+  if (drag) { view.ox = drag.ox + e.clientX - drag.x; view.oy = drag.oy + e.clientY - drag.y; draw(); }
+  const X = Math.round(unx((mx - view.ox) / view.s)), Y = Math.round(uny((my - view.oy) / view.s));
+  $('coords').textContent = `X ${X} · Y ${Y} · près de ${nearestPoi(X, Y)}`;
+  const hit = chestHits.find(h => Math.hypot(h.x - mx, h.y - my) < 11), tip = $('tip');
+  if (hit && !drag) {
+    const d = new Date(hit.g.date).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    const nice = i => i.replace(/^WID_/, '').replace(/^AthenaAmmoData/, 'Munitions ').replace(/_Athena.*$/, '').replace(/_/g, ' ');
+    const kind = hit.c.k === 'coffre' ? 'Coffre' + (RARITY[hit.c.r] ? ' ' + RARITY[hit.c.r].n : '') : hit.c.k === 'munitions' ? 'Caisse de munitions' : 'Conteneur';
+    const couleur = hit.c.k === 'coffre' && RARITY[hit.c.r] ? RARITY[hit.c.r].c : 'var(--gold)';
+    if (hit.fall) tip.innerHTML = `<b style="color:#d6a8ff">Coffre peut-être tombé ou cassé par moi (estimation)</b> · ${d}<br>${nearestPoi(hit.c.x, hit.c.y)}<br><span style="color:var(--muted)">le contenu est sorti à ${(hit.fall[3] / 100).toFixed(1)} m de moi, ${hit.fall[4] >= 0 ? hit.fall[4] / 100 : -hit.fall[4] / 100} m ${hit.fall[4] >= 0 ? 'au-dessus' : 'en dessous'}, sans que j'aie ouvert ce coffre moi-même (sol cassé ou coup de pioche ?). Compté dans le total (estimation).</span>`;
+    else if (hit.spot) tip.innerHTML = `<b>${kind}</b> · vu ouvert ${hit.spot.n} fois (${hit.spot.games.size} partie${hit.spot.games.size > 1 ? 's' : ''})<br>${nearestPoi(hit.spot.x, hit.spot.y)}`;
+    else tip.innerHTML = `<b style="color:${couleur}">${kind}</b>${hit.who ? ' de ' + hit.who : hit.any ? ' ouvert par un autre joueur' : ''} · ${d}<br>${nearestPoi(hit.c.x, hit.c.y)}<br><span style="color:var(--muted)">${hit.c.items.map(nice).join(', ') || (hit.any ? '' : 'contenu non vu')}</span>`;
+    tip.style.display = 'block'; tip.style.left = Math.min(mx + 14, W - 310) + 'px'; tip.style.top = (my + 14) + 'px';
+  } else tip.style.display = 'none';
+});
+cv.addEventListener('wheel', e => {
+  e.preventDefault(); userMoved = true;
+  const r = cv.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+  const k = Math.exp(-e.deltaY * 0.0015), ns = Math.min(8, Math.max(Math.min(W, H) / IMG * .8, view.s * k));
+  view.ox = mx - (mx - view.ox) * ns / view.s; view.oy = my - (my - view.oy) * ns / view.s; view.s = ns; draw();
+}, { passive: false });
+cv.addEventListener('dblclick', () => { userMoved = true; fit(); draw(); });
+document.querySelectorAll('input[type=checkbox]').forEach(i => i.addEventListener('change', () => { counters(); stats(); draw(); }));
+sel.addEventListener('change', () => { buildPlayers(); showPlayerInfo(); stats(); draw(); });
+const t0 = performance.now();
+const lent = /[?&]lent/.test(location.search);        // ?lent : garde l'écran de chargement 6 s (pour le voir en test)
+function finChargement() {
+  const el = document.getElementById('chargement'); if (!el || el.dataset.fin) return;
+  el.dataset.fin = '1';
+  const reste = Math.max(0, (lent ? 6000 : 700) - (performance.now() - t0));      // au moins 0,7 s : pas de clignotement
+  setTimeout(() => { el.classList.add('fini'); setTimeout(() => el.remove(), 600); document.querySelector('aside').scrollTop = 0; }, reste);
+}
+img.onload = () => { if (!userMoved) vueInitiale(); draw(); finChargement(); };
+img.onerror = finChargement;
+setTimeout(finChargement, 10000);                      // filet de sécurité
+addEventListener('resize', resize);
+
+if (!PARTIES.length) $('empty').style.display = 'grid';
+$('sub').textContent = PARTIES.length ? `${PARTIES.length} partie(s) lue(s) depuis tes replays` : 'Aucune donnée';
+// ----- compteur : total, derniere partie, session (parties consecutives, moins de 90 min entre deux)
+function counters() {
+  const nbF = g => ($('c-falls') && $('c-falls').checked) ? (g.falls || []).filter(f => !f[5]).length : 0;
+  const nb = g => g.chests.filter(c => c.k === 'coffre').length + nbF(g);
+  // équipe = moi + mes équipiers (leurs coffres : estimation, le replay ne dit « début de fouille » que pour moi)
+  const nbEq = g => nb(g) + (g.others || []).filter(o => o.mate).reduce((a, o) => a + (o.chests || []).filter(c => c.k === 'coffre').length, 0);
+  const gs = [...PARTIES].sort((a, b) => new Date(a.date) - new Date(b.date));
+  if (!gs.length) { $('counter').innerHTML = ''; $('counterEq').innerHTML = ''; return; }
+  const depart = Math.max(0, parseInt((window.REGLAGES || {}).depart, 10) || 0);   // coffres déjà ouverts avant l'outil (réglé dans le panneau)
+  const total = depart + gs.reduce((a, g) => a + nb(g), 0);
+  const last = gs[gs.length - 1];
+  let i = gs.length - 1;
+  while (i > 0 && new Date(gs[i].date) - new Date(gs[i - 1].date) <= 90 * 60 * 1000) i--;
+  const sess = gs.slice(i), sessN = sess.reduce((a, g) => a + nb(g), 0);
+  $('counter').innerHTML =
+    `<div class="card"><b>${total}</b><span>au total</span></div>` +
+    `<div class="card"><b>${nb(last)}</b><span>dernière partie</span></div>` +
+    `<div class="card"><b>${sessN}</b><span>cette session</span></div>`;
+  const totalEq = gs.reduce((a, g) => a + nbEq(g), 0), sessEq = sess.reduce((a, g) => a + nbEq(g), 0);
+  $('counterEq').innerHTML =
+    `<div class="card" title="Toi + tes équipiers, dans toutes les parties lues (sans le nombre de départ)"><b>${totalEq}</b><span>équipe · au total</span></div>` +
+    `<div class="card"><b>${nbEq(last)}</b><span>équipe · dernière partie</span></div>` +
+    `<div class="card"><b>${sessEq}</b><span>équipe · cette session</span></div>`;
+  const d = new Date(last.date).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const all = gs.flatMap(g => g.chests.filter(c => c.k === 'coffre'));
+  const nfAll = gs.reduce((a, g) => a + nbF(g), 0);
+  const leg = all.filter(c => c.r === 4).length, epi = all.filter(c => c.r === 3).length, rar = all.filter(c => c.r === 2).length;
+  $('counterSub').innerHTML = `${gs.length} partie${gs.length > 1 ? 's' : ''} · session = ${sess.length} partie${sess.length > 1 ? 's' : ''} jouée${sess.length > 1 ? 's' : ''} d'affilée (moins de 1 h 30 entre deux) · dernière : ${d}` +
+    (leg + epi + rar ? `<br>Dont <b style="color:#ff9d1c">${leg} légendaire${leg > 1 ? 's' : ''}</b>, <b style="color:#c35cff">${epi} épique${epi > 1 ? 's' : ''}</b>, <b style="color:#35a4ff">${rar} rare${rar > 1 ? 's' : ''}</b>` : '') +
+    (nfAll ? `<br>Dont ${nfAll} tombé${nfAll > 1 ? 's' : ''} ou cassé${nfAll > 1 ? 's' : ''} par moi (estimation)` : '') +
+    (depart ? `<br>Dont ${depart} déjà ouvert${depart > 1 ? 's' : ''} avant l'outil (nombre de départ du panneau)` : '');
+  $('counterSub').innerHTML += `<br><span style="color:var(--cyan)">Équipe = toi + tes équipiers.</span> Tes coffres sont exacts ; ceux de tes équipiers sont une estimation (vus seulement quand ils sont près de toi : c'est un minimum). Tes compteurs ci-dessus ne changent pas.`;
+}
+if (window.REGLAGES && typeof REGLAGES.compterTombes === 'boolean') $('c-falls').checked = REGLAGES.compterTombes;
+counters();
+buildPlayers(); showPlayerInfo(); resize(); fit(); stats(); draw();
+if (img.complete && img.naturalWidth) finChargement();
+// Zoom de depart : centre sur l'ile. Rejoue si la fenetre change de taille ou si l'image arrive apres, tant qu'on n'a pas touche a la carte
+// (sinon, une page chargee dans un onglet encore sans taille laissait la carte invisible).
+function vueInitiale() {
+  if (!(W > 0 && H > 0)) return;
+  const s = Math.min(W, H) / IMG * 1.55; view.s = s; view.ox = W / 2 - 1020 * s; view.oy = H / 2 - 1090 * s;
+}
+vueInitiale(); draw();
+document.querySelector('aside').scrollTop = 0;      // le panneau de gauche s'ouvre toujours tout en haut
+</script>
+</body>
+</html>
